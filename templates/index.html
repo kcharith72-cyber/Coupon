@@ -1,270 +1,449 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Coupon Generator | AWS RDS MySQL</title>
-
-  <!-- Orbitron Futuristic Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
-
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coupon Generator | AWS RDS MySQL</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
     body {
-      font-family: 'Orbitron', sans-serif;
-      background: radial-gradient(circle at top left, #0f0f1b, #000);
-      color: #fff;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1e1e2f 0%, #121220 100%);
+        color: #f1f2f6;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
     }
 
     .container {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 255, 255, 0.1);
-      text-align: center;
-      max-width: 650px;
-      width: 100%;
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #1e1e2b;
+        padding: 40px;
+        border-radius: 18px;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+        text-align: center;
+        max-width: 700px;
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     h1 {
-      color: #00ffe7;
-      margin-bottom: 10px;
-      font-size: 2.5em;
-      text-shadow: 0 0 5px #00ffe7;
+        color: #ffffff;
+        font-size: 2.4em;
+        margin-bottom: 10px;
     }
 
     .subtitle {
-      color: #aaa;
-      margin-bottom: 30px;
-      font-size: 1em;
+        color: #b2bec3;
+        margin-bottom: 25px;
+        font-size: 1.05em;
     }
 
     .logo {
-      font-size: 3em;
-      margin-bottom: 10px;
-      text-shadow: 0 0 10px #00ffe7;
+        font-size: 3.2em;
+        margin-bottom: 8px;
     }
 
     .coupon-display {
-      background: linear-gradient(135deg, #00ffe7, #0088ff);
-      color: #000;
-      padding: 25px;
-      border-radius: 15px;
-      font-size: 2em;
-      font-weight: bold;
-      letter-spacing: 3px;
-      margin: 20px 0;
-      border: 2px dashed rgba(255, 255, 255, 0.3);
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-      word-break: break-word;
-      animation: neonPulse 2s infinite;
+        background: linear-gradient(45deg, #00b894, #00cec9);
+        color: white;
+        padding: 22px;
+        border-radius: 12px;
+        font-size: 2em;
+        font-weight: 600;
+        letter-spacing: 2px;
+        margin: 25px 0;
+        border: 2px dashed rgba(255, 255, 255, 0.4);
+        box-shadow: 0 6px 16px rgba(0, 255, 200, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.25s ease;
+        cursor: pointer;
+        word-break: break-word;
     }
 
-    .coupon-display:hover { transform: scale(1.02); }
-
-    @keyframes neonPulse {
-      0% { box-shadow: 0 0 10px #00ffe7; }
-      50% { box-shadow: 0 0 25px #00ffe7; }
-      100% { box-shadow: 0 0 10px #00ffe7; }
+    .coupon-display:hover {
+        transform: scale(1.03);
+        box-shadow: 0 10px 25px rgba(0, 255, 200, 0.25);
     }
 
     .stats {
-      background: rgba(255,255,255,0.05);
-      padding: 20px;
-      border-radius: 15px;
-      margin: 25px 0;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 15px;
+        background: #2f2f3f;
+        color: #dcdde1;
+        padding: 20px;
+        border-radius: 12px;
+        margin: 30px 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
     }
 
-    .stat-item { text-align: center; }
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
     .stat-value {
-      font-size: 1.8em;
-      color: #00ffd9;
-      margin-bottom: 5px;
-      text-shadow: 0 0 5px #00ffd9;
+        font-size: 1.7em;
+        font-weight: bold;
+        color: #74b9ff;
+        margin-bottom: 4px;
     }
 
-    .stat-label { font-size: 0.85em; color: #ccc; }
+    .stat-label {
+        font-size: 0.85em;
+        color: #b2bec3;
+        text-align: center;
+    }
 
     .generate-btn {
-      background: linear-gradient(135deg, #00ffe7, #006eff);
-      color: black;
-      border: none;
-      padding: 15px 40px;
-      font-size: 1.2em;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-weight: bold;
-      letter-spacing: 1px;
-      margin: 15px 0;
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        background: linear-gradient(45deg, #ff7675, #d63031);
+        color: white;
+        border: none;
+        padding: 16px 35px;
+        font-size: 1.2em;
+        border-radius: 40px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 15px auto;
+        box-shadow: 0 5px 12px rgba(255, 118, 117, 0.4);
+        font-weight: 600;
+        letter-spacing: 1px;
+        width: 100%;
+        max-width: 280px;
     }
 
     .generate-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 25px rgba(0, 255, 255, 0.7);
+        background: linear-gradient(45deg, #d63031, #ff7675);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 118, 117, 0.5);
     }
 
     .generate-btn:disabled {
-      background: #333;
-      color: #999;
-      cursor: not-allowed;
-      box-shadow: none;
+        background: #636e72;
+        cursor: not-allowed;
+        box-shadow: none;
     }
 
     .db-status {
-      margin-top: 20px;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 0.95em;
-      background: rgba(255, 255, 255, 0.05);
+        margin-top: 20px;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 0.95em;
     }
 
-    .db-connected { color: #00ffcc; border-left: 5px solid #00ffcc; }
-    .db-disconnected { color: #ff4c4c; border-left: 5px solid #ff4c4c; }
-    .db-error { color: #ffcc00; border-left: 5px solid #ffcc00; }
+    .db-connected {
+        background: #2ecc71;
+        color: #fff;
+        border: 1px solid #27ae60;
+    }
+
+    .db-disconnected {
+        background: #e74c3c;
+        color: #fff;
+        border: 1px solid #c0392b;
+    }
+
+    .db-error {
+        background: #f1c40f;
+        color: #2c3e50;
+        border: 1px solid #f39c12;
+    }
 
     .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #00ffe7;
-      color: #000;
-      padding: 15px 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,255,255,0.5);
-      opacity: 0;
-      transform: translateX(100px);
-      transition: all 0.3s ease;
-      font-weight: 600;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #00cec9;
+        color: #121212;
+        padding: 14px 22px;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        opacity: 0;
+        transform: translateX(100px);
+        transition: all 0.3s ease;
+        max-width: 320px;
+        font-weight: 600;
     }
 
-    .notification.active { opacity: 1; transform: translateX(0); }
-    .notification.error { background: #ff4c4c; color: #fff; }
+    .notification.active {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .notification.error {
+        background: #d63031;
+        color: white;
+    }
+
+    .loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .pulse {
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.015); }
+        100% { transform: scale(1); }
+    }
 
     .app-info {
-      margin-top: 20px;
-      font-size: 0.85em;
-      color: #aaa;
-      background: rgba(255, 255, 255, 0.02);
-      padding: 10px;
-      border-radius: 10px;
-      border-left: 3px solid #00ffe7;
+        margin-top: 20px;
+        padding: 15px;
+        background: #2f2f3f;
+        border-radius: 10px;
+        font-size: 0.9em;
+        color: #bdc3c7;
+        border-left: 4px solid #636e72;
     }
 
-    .app-info a { color: #00ffe7; text-decoration: underline; }
+    .app-info a {
+        color: #74b9ff;
+        text-decoration: underline;
+    }
 
     @media (max-width: 600px) {
-      .container { padding: 25px 20px; }
-      h1 { font-size: 2em; }
-      .coupon-display { font-size: 1.6em; padding: 20px; }
-      .generate-btn { font-size: 1em; padding: 12px 25px; }
+        .container {
+            padding: 25px 18px;
+            margin: 10px;
+        }
+
+        h1 {
+            font-size: 2em;
+        }
+
+        .coupon-display {
+            font-size: 1.6em;
+            padding: 20px;
+        }
+
+        .generate-btn {
+            padding: 14px 28px;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 15px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+        }
     }
-  </style>
+</style>
 </head>
-
 <body>
-  <div class="container">
-    <div class="logo">🤖</div>
-    <h1>Coupon Generator</h1>
-    <div class="subtitle">AWS RDS MySQL Database | DB: coupon-db</div>
+    <div class="container">
+        <div class="logo">🎫</div>
+        <h1>Coupon Generator</h1>
+        <div class="subtitle">AWS RDS MySQL Database | DB: coupon-db</div>
 
-    <div class="stats" id="statsDisplay">
-      <div class="stat-item">
-        <div class="stat-value" id="totalCoupons">-</div>
-        <div class="stat-label">Total Coupons</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="todayCoupons">-</div>
-        <div class="stat-label">Today</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="availableCoupons">-</div>
-        <div class="stat-label">Available</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="recentCoupons">-</div>
-        <div class="stat-label">Recent (1h)</div>
-      </div>
+        <div class="stats" id="statsDisplay">
+            <div class="stat-item">
+                <div class="stat-value" id="totalCoupons">-</div>
+                <div class="stat-label">Total Coupons</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="todayCoupons">-</div>
+                <div class="stat-label">Today</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="availableCoupons">-</div>
+                <div class="stat-label">Available</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="recentCoupons">-</div>
+                <div class="stat-label">Recent (1h)</div>
+            </div>
+        </div>
+
+        <div class="coupon-display pulse" id="couponDisplay" title="Click to copy coupon">
+            {{ coupon }}
+        </div>
+        
+        <button class="generate-btn" onclick="generateNewCoupon()" id="generateBtn">
+            🔄 Generate New Coupon
+        </button>
+
+        <div class="db-status db-{{ db_status }}" id="dbStatus">
+            {% if db_status == 'connected' %}
+                ✅ Database Connected - coupon-db
+            {% elif db_status == 'error' %}
+                ⚠️ Database Error - coupon-db
+            {% else %}
+                ❌ Database Disconnected - coupon-db
+            {% endif %}
+        </div>
+
+        <div class="app-info">
+            <strong>Application Info:</strong> 
+            Click coupon to copy | Auto-refresh every 30s | 
+            <a href="/health" target="_blank">Health Check</a> | 
+            <a href="/stats" target="_blank">API Stats</a>
+        </div>
     </div>
 
-    <div class="coupon-display" id="couponDisplay" title="Click to copy coupon">
-      {{ coupon }}
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        ✅ Your coupon is ready!
     </div>
 
-    <button class="generate-btn" onclick="generateNewCoupon()" id="generateBtn">
-      🔄 Generate New Coupon
-    </button>
+    <script>
+        let currentCoupon = "{{ coupon }}";
+        let isGenerating = false;
 
-    <div class="db-status db-{{ db_status }}" id="dbStatus">
-      {% if db_status == 'connected' %}
-        ✅ Database Connected - coupon-db
-      {% elif db_status == 'error' %}
-        ⚠️ Database Error - coupon-db
-      {% else %}
-        ❌ Database Disconnected - coupon-db
-      {% endif %}
-    </div>
+        function generateNewCoupon() {
+            if (isGenerating) return;
+            
+            isGenerating = true;
+            const generateBtn = document.getElementById('generateBtn');
+            const couponDisplay = document.getElementById('couponDisplay');
+            const container = document.querySelector('.container');
+            
+            // Show loading state
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '⏳ Generating...';
+            couponDisplay.textContent = 'Generating...';
+            couponDisplay.style.background = 'linear-gradient(45deg, #ffa726, #ff9800)';
+            container.classList.add('loading');
+            
+            fetch('/generate')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.coupon) {
+                        currentCoupon = data.coupon;
+                        couponDisplay.textContent = data.coupon;
+                        couponDisplay.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+                        showNotification('🎉 New coupon generated!');
+                        updateStats(); // Refresh stats
+                    } else {
+                        throw new Error('No coupon received');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error generating coupon:', error);
+                    couponDisplay.textContent = 'Error - Try Again';
+                    couponDisplay.style.background = 'linear-gradient(45deg, #f44336, #d32f2f)';
+                    showNotification('❌ Failed to generate coupon', true);
+                })
+                .finally(() => {
+                    generateBtn.disabled = false;
+                    generateBtn.innerHTML = '🔄 Generate New Coupon';
+                    container.classList.remove('loading');
+                    isGenerating = false;
+                });
+        }
 
-    <div class="app-info">
-      <p>Built with 💻 Flask + AWS RDS MySQL</p>
-      <p>GitHub: <a href="#" target="_blank">YourProjectLink</a></p>
-    </div>
-  </div>
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification' + (isError ? ' error' : '');
+            notification.classList.add('active');
+            
+            setTimeout(() => {
+                notification.classList.remove('active');
+            }, 3000);
+        }
 
-  <div class="notification" id="notification">Coupon copied to clipboard!</div>
+        function updateStats() {
+            fetch('/stats')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('statsDisplay').innerHTML = 
+                            '<div class="stat-item"><div class="stat-label">Statistics unavailable</div></div>';
+                        updateDbStatus('error');
+                    } else {
+                        document.getElementById('totalCoupons').textContent = data.total_coupons?.toLocaleString() || '0';
+                        document.getElementById('todayCoupons').textContent = data.today_coupons?.toLocaleString() || '0';
+                        document.getElementById('availableCoupons').textContent = data.available_coupons?.toLocaleString() || '0';
+                        document.getElementById('recentCoupons').textContent = data.recent_coupons?.toLocaleString() || '0';
+                        
+                        updateDbStatus(data.database_status || 'connected');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching stats:', error);
+                    updateDbStatus('disconnected');
+                });
+        }
 
-  <script>
-    // Copy coupon code
-    const couponDisplay = document.getElementById('couponDisplay');
-    const notification = document.getElementById('notification');
+        function updateDbStatus(status) {
+            const dbStatus = document.getElementById('dbStatus');
+            dbStatus.className = 'db-status db-' + status;
+            
+            switch(status) {
+                case 'connected':
+                    dbStatus.innerHTML = '✅ Database Connected - coupon-db';
+                    break;
+                case 'error':
+                    dbStatus.innerHTML = '⚠️ Database Error - coupon-db';
+                    break;
+                default:
+                    dbStatus.innerHTML = '❌ Database Disconnected - coupon-db';
+            }
+        }
 
-    couponDisplay.addEventListener('click', () => {
-      const text = couponDisplay.textContent.trim();
-      navigator.clipboard.writeText(text);
-      notification.classList.add('active');
-      setTimeout(() => notification.classList.remove('active'), 2000);
-    });
+        // Copy coupon to clipboard when clicked
+        document.getElementById('couponDisplay').addEventListener('click', function() {
+            if (currentCoupon && currentCoupon !== 'Generating...' && currentCoupon !== 'Error - Try Again') {
+                navigator.clipboard.writeText(currentCoupon).then(() => {
+                    showNotification('✅ Coupon copied to clipboard!');
+                }).catch(() => {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = currentCoupon;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showNotification('✅ Coupon copied to clipboard!');
+                });
+                
+                // Click animation
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            }
+        });
 
-    // Generate new coupon via API
-    async function generateNewCoupon() {
-      const btn = document.getElementById('generateBtn');
-      btn.disabled = true;
-      btn.textContent = 'Generating...';
-      try {
-        const res = await fetch('/generate');
-        const data = await res.json();
-        couponDisplay.textContent = data.coupon;
-      } catch (err) {
-        notification.textContent = 'Error generating coupon!';
-        notification.classList.add('active', 'error');
-        setTimeout(() => {
-          notification.classList.remove('active', 'error');
-          notification.textContent = 'Coupon copied to clipboard!';
-        }, 3000);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '🔄 Generate New Coupon';
-      }
-    }
-  </script>
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats();
+            setTimeout(() => {
+                if (currentCoupon && currentCoupon !== '') {
+                    showNotification('🎉 Your coupon is ready! Click to copy.');
+                }
+            }, 1000);
+            
+            // Update stats every 30 seconds
+            setInterval(updateStats, 30000);
+            
+            // Add keyboard shortcut (Ctrl+G or Cmd+G) to generate coupon
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'g') {
+                    e.preventDefault();
+                    generateNewCoupon();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
