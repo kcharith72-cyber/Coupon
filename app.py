@@ -162,26 +162,277 @@ def home():
         print(traceback.format_exc())
         # Fallback response
         return f"""
-        <html>
-            <head><title>Coupon Generator</title></head>
-            <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-                <h1>🎫 Coupon Generator</h1>
-                <div style="background: #4CAF50; color: white; padding: 20px; border-radius: 10px; margin: 20px;">
-                    <h2>Your Coupon:</h2>
-                    <div style="font-size: 2em; font-weight: bold;">{coupon}</div>
-                </div>
-                <p>Database Status: <strong>{db_status}</strong></p>
-                <p>Message: {db_message}</p>
-                <button onclick="window.location.reload()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                    Generate New Coupon
-                </button>
-                <p>
-                    <a href="/stats" style="margin: 0 10px;">📊 Statistics</a>
-                    <a href="/health" style="margin: 0 10px;">❤️ Health Check</a>
-                    <a href="/debug" style="margin: 0 10px;">🐛 Debug Info</a>
-                </p>
-            </body>
-        </html>
+        <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coupon Generator | AWS RDS MySQL</title>
+
+  <!-- Orbitron Futuristic Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: radial-gradient(circle at top left, #0f0f1b, #000);
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 255, 255, 0.1);
+      text-align: center;
+      max-width: 650px;
+      width: 100%;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    h1 {
+      color: #00ffe7;
+      margin-bottom: 10px;
+      font-size: 2.5em;
+      text-shadow: 0 0 5px #00ffe7;
+    }
+
+    .subtitle {
+      color: #aaa;
+      margin-bottom: 30px;
+      font-size: 1em;
+    }
+
+    .logo {
+      font-size: 3em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px #00ffe7;
+    }
+
+    .coupon-display {
+      background: linear-gradient(135deg, #00ffe7, #0088ff);
+      color: #000;
+      padding: 25px;
+      border-radius: 15px;
+      font-size: 2em;
+      font-weight: bold;
+      letter-spacing: 3px;
+      margin: 20px 0;
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      word-break: break-word;
+      animation: neonPulse 2s infinite;
+    }
+
+    .coupon-display:hover { transform: scale(1.02); }
+
+    @keyframes neonPulse {
+      0% { box-shadow: 0 0 10px #00ffe7; }
+      50% { box-shadow: 0 0 25px #00ffe7; }
+      100% { box-shadow: 0 0 10px #00ffe7; }
+    }
+
+    .stats {
+      background: rgba(255,255,255,0.05);
+      padding: 20px;
+      border-radius: 15px;
+      margin: 25px 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+    }
+
+    .stat-item { text-align: center; }
+
+    .stat-value {
+      font-size: 1.8em;
+      color: #00ffd9;
+      margin-bottom: 5px;
+      text-shadow: 0 0 5px #00ffd9;
+    }
+
+    .stat-label { font-size: 0.85em; color: #ccc; }
+
+    .generate-btn {
+      background: linear-gradient(135deg, #00ffe7, #006eff);
+      color: black;
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.2em;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin: 15px 0;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    }
+
+    .generate-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.7);
+    }
+
+    .generate-btn:disabled {
+      background: #333;
+      color: #999;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .db-status {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.95em;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .db-connected { color: #00ffcc; border-left: 5px solid #00ffcc; }
+    .db-disconnected { color: #ff4c4c; border-left: 5px solid #ff4c4c; }
+    .db-error { color: #ffcc00; border-left: 5px solid #ffcc00; }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #00ffe7;
+      color: #000;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,255,255,0.5);
+      opacity: 0;
+      transform: translateX(100px);
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .notification.active { opacity: 1; transform: translateX(0); }
+    .notification.error { background: #ff4c4c; color: #fff; }
+
+    .app-info {
+      margin-top: 20px;
+      font-size: 0.85em;
+      color: #aaa;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 10px;
+      border-radius: 10px;
+      border-left: 3px solid #00ffe7;
+    }
+
+    .app-info a { color: #00ffe7; text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .container { padding: 25px 20px; }
+      h1 { font-size: 2em; }
+      .coupon-display { font-size: 1.6em; padding: 20px; }
+      .generate-btn { font-size: 1em; padding: 12px 25px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo">🤖</div>
+    <h1>Coupon Generator</h1>
+    <div class="subtitle">AWS RDS MySQL Database | DB: coupon-db</div>
+
+    <div class="stats" id="statsDisplay">
+      <div class="stat-item">
+        <div class="stat-value" id="totalCoupons">-</div>
+        <div class="stat-label">Total Coupons</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="todayCoupons">-</div>
+        <div class="stat-label">Today</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="availableCoupons">-</div>
+        <div class="stat-label">Available</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="recentCoupons">-</div>
+        <div class="stat-label">Recent (1h)</div>
+      </div>
+    </div>
+
+    <div class="coupon-display" id="couponDisplay" title="Click to copy coupon">
+      {{ coupon }}
+    </div>
+
+    <button class="generate-btn" onclick="generateNewCoupon()" id="generateBtn">
+      🔄 Generate New Coupon
+    </button>
+
+    <div class="db-status db-{{ db_status }}" id="dbStatus">
+      {% if db_status == 'connected' %}
+        ✅ Database Connected - coupon-db
+      {% elif db_status == 'error' %}
+        ⚠️ Database Error - coupon-db
+      {% else %}
+        ❌ Database Disconnected - coupon-db
+      {% endif %}
+    </div>
+
+    <div class="app-info">
+      <p>Built with 💻 Flask + AWS RDS MySQL</p>
+      <p>GitHub: <a href="#" target="_blank">YourProjectLink</a></p>
+    </div>
+  </div>
+
+  <div class="notification" id="notification">Coupon copied to clipboard!</div>
+
+  <script>
+    // Copy coupon code
+    const couponDisplay = document.getElementById('couponDisplay');
+    const notification = document.getElementById('notification');
+
+    couponDisplay.addEventListener('click', () => {
+      const text = couponDisplay.textContent.trim();
+      navigator.clipboard.writeText(text);
+      notification.classList.add('active');
+      setTimeout(() => notification.classList.remove('active'), 2000);
+    });
+
+    // Generate new coupon via API
+    async function generateNewCoupon() {
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = true;
+      btn.textContent = 'Generating...';
+      try {
+        const res = await fetch('/generate');
+        const data = await res.json();
+        couponDisplay.textContent = data.coupon;
+      } catch (err) {
+        notification.textContent = 'Error generating coupon!';
+        notification.classList.add('active', 'error');
+        setTimeout(() => {
+          notification.classList.remove('active', 'error');
+          notification.textContent = 'Coupon copied to clipboard!';
+        }, 3000);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🔄 Generate New Coupon';
+      }
+    }
+  </script>
+</body>
+</html>
+
         """
 
 @app.route('/generate')
