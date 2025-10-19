@@ -4,16 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Coupon Generator | AWS RDS MySQL</title>
-  
+
   <!-- Orbitron Futuristic Font -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
-  
+
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Orbitron', sans-serif;
@@ -77,9 +73,7 @@
       animation: neonPulse 2s infinite;
     }
 
-    .coupon-display:hover {
-      transform: scale(1.02);
-    }
+    .coupon-display:hover { transform: scale(1.02); }
 
     @keyframes neonPulse {
       0% { box-shadow: 0 0 10px #00ffe7; }
@@ -97,9 +91,7 @@
       gap: 15px;
     }
 
-    .stat-item {
-      text-align: center;
-    }
+    .stat-item { text-align: center; }
 
     .stat-value {
       font-size: 1.8em;
@@ -108,10 +100,7 @@
       text-shadow: 0 0 5px #00ffd9;
     }
 
-    .stat-label {
-      font-size: 0.85em;
-      color: #ccc;
-    }
+    .stat-label { font-size: 0.85em; color: #ccc; }
 
     .generate-btn {
       background: linear-gradient(135deg, #00ffe7, #006eff);
@@ -149,20 +138,9 @@
       background: rgba(255, 255, 255, 0.05);
     }
 
-    .db-connected {
-      color: #00ffcc;
-      border-left: 5px solid #00ffcc;
-    }
-
-    .db-disconnected {
-      color: #ff4c4c;
-      border-left: 5px solid #ff4c4c;
-    }
-
-    .db-error {
-      color: #ffcc00;
-      border-left: 5px solid #ffcc00;
-    }
+    .db-connected { color: #00ffcc; border-left: 5px solid #00ffcc; }
+    .db-disconnected { color: #ff4c4c; border-left: 5px solid #ff4c4c; }
+    .db-error { color: #ffcc00; border-left: 5px solid #ffcc00; }
 
     .notification {
       position: fixed;
@@ -179,15 +157,8 @@
       font-weight: 600;
     }
 
-    .notification.active {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    .notification.error {
-      background: #ff4c4c;
-      color: #fff;
-    }
+    .notification.active { opacity: 1; transform: translateX(0); }
+    .notification.error { background: #ff4c4c; color: #fff; }
 
     .app-info {
       margin-top: 20px;
@@ -199,29 +170,13 @@
       border-left: 3px solid #00ffe7;
     }
 
-    .app-info a {
-      color: #00ffe7;
-      text-decoration: underline;
-    }
+    .app-info a { color: #00ffe7; text-decoration: underline; }
 
     @media (max-width: 600px) {
-      .container {
-        padding: 25px 20px;
-      }
-
-      h1 {
-        font-size: 2em;
-      }
-
-      .coupon-display {
-        font-size: 1.6em;
-        padding: 20px;
-      }
-
-      .generate-btn {
-        font-size: 1em;
-        padding: 12px 25px;
-      }
+      .container { padding: 25px 20px; }
+      h1 { font-size: 2em; }
+      .coupon-display { font-size: 1.6em; padding: 20px; }
+      .generate-btn { font-size: 1em; padding: 12px 25px; }
     }
   </style>
 </head>
@@ -265,4 +220,51 @@
       {% elif db_status == 'error' %}
         ⚠️ Database Error - coupon-db
       {% else %}
-        ❌ Database
+        ❌ Database Disconnected - coupon-db
+      {% endif %}
+    </div>
+
+    <div class="app-info">
+      <p>Built with 💻 Flask + AWS RDS MySQL</p>
+      <p>GitHub: <a href="#" target="_blank">YourProjectLink</a></p>
+    </div>
+  </div>
+
+  <div class="notification" id="notification">Coupon copied to clipboard!</div>
+
+  <script>
+    // Copy coupon code
+    const couponDisplay = document.getElementById('couponDisplay');
+    const notification = document.getElementById('notification');
+
+    couponDisplay.addEventListener('click', () => {
+      const text = couponDisplay.textContent.trim();
+      navigator.clipboard.writeText(text);
+      notification.classList.add('active');
+      setTimeout(() => notification.classList.remove('active'), 2000);
+    });
+
+    // Generate new coupon via API
+    async function generateNewCoupon() {
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = true;
+      btn.textContent = 'Generating...';
+      try {
+        const res = await fetch('/generate');
+        const data = await res.json();
+        couponDisplay.textContent = data.coupon;
+      } catch (err) {
+        notification.textContent = 'Error generating coupon!';
+        notification.classList.add('active', 'error');
+        setTimeout(() => {
+          notification.classList.remove('active', 'error');
+          notification.textContent = 'Coupon copied to clipboard!';
+        }, 3000);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🔄 Generate New Coupon';
+      }
+    }
+  </script>
+</body>
+</html>
