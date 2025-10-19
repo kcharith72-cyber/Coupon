@@ -3,6 +3,7 @@ import math
 import random
 import os
 import pymysql
+import pymysql.cursors
 from datetime import datetime
 import time
 import traceback
