@@ -15,7 +15,7 @@ DB_CONFIG = {
     'host': 'coupon-db.c18swy2galw4.eu-west-1.rds.amazonaws.com',
     'user': 'admin', 
     'password': 'CouponApp123!',
-    'database': 'coupon_db',  # ← CHANGED TO coupon_db (with underscore)
+    'database': 'coupon_db',  
     'port': 3306,
     'charset': 'utf8mb4',
     'cursorclass': pymysql.cursors.DictCursor,
@@ -148,220 +148,81 @@ def home():
         print(f"💥 Critical error in home route: {e}")
         print(traceback.format_exc())
         
+        # Properly INDENT the fallback response here
         return f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Coupon Generator</title>
-    <style>
-        :root {{
-            --bg-light: #f9f9f9;
-            --bg-dark: #0f1419;
-            --text-light: #333;
-            --text-dark: #f0f0f0;
-            --primary: #007BFF;
-            --primary-hover: #0056b3;
-            --accent: #009688;
-            --card-light: #ffffff;
-            --card-dark: #1c1f24;
-            --shadow-light: rgba(0, 0, 0, 0.1);
-            --shadow-dark: rgba(0, 0, 0, 0.5);
-        }}
-
-        @media (prefers-color-scheme: dark) {{
-            body {{
-                background: var(--bg-dark);
-                color: var(--text-dark);
-            }}
-            .container {{
-                background: var(--card-dark);
-                box-shadow: 0 6px 25px var(--shadow-dark);
-            }}
-            .coupon-box {{
-                background: var(--accent);
-                color: #fff;
-            }}
-            .status {{
-                background: rgba(255, 255, 255, 0.05);
-                color: #ccc;
-            }}
-            .button {{
-                background-color: var(--primary);
-                color: #fff;
-            }}
-            .button:hover {{
-                background-color: var(--primary-hover);
-            }}
-            .nav-links a {{
-                color: #66b2ff;
-            }}
-            .nav-links a:hover {{
-                color: #99ccff;
-            }}
-        }}
-
-        @media (prefers-color-scheme: light) {{
-            body {{
-                background: linear-gradient(135deg, #e0f7fa, var(--bg-light));
-                color: var(--text-light);
-            }}
-            .container {{
-                background: var(--card-light);
-                box-shadow: 0 6px 20px var(--shadow-light);
-            }}
-            .coupon-box {{
-                background: var(--accent);
-                color: #fff;
-            }}
-            .status {{
-                background: #f0f0f0;
-                color: #333;
-            }}
-            .button {{
-                background-color: var(--primary);
-                color: #fff;
-            }}
-            .button:hover {{
-                background-color: var(--primary-hover);
-            }}
-            .nav-links a {{
-                color: var(--primary);
-            }}
-            .nav-links a:hover {{
-                color: var(--primary-hover);
-            }}
-        }}
-
-        body {{
-            font-family: 'Poppins', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            transition: background 0.4s ease, color 0.4s ease;
-        }}
-
-        .container {{
-            border-radius: 16px;
-            padding: 40px;
-            width: 90%;
-            max-width: 520px;
-            text-align: center;
-            transition: transform 0.2s ease, box-shadow 0.3s ease;
-        }}
-
-        .container:hover {{
-            transform: translateY(-3px);
-        }}
-
-        h1 {{
-            font-size: 1.9em;
-            color: var(--accent);
-            margin-bottom: 10px;
-        }}
-
-        .subtitle {{
-            font-size: 0.95em;
-            opacity: 0.8;
-            margin-bottom: 25px;
-        }}
-
-        .coupon-box {{
-            padding: 20px 25px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }}
-
-        .coupon-label {{
-            font-size: 1em;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }}
-
-        .coupon-code {{
-            font-size: 2em;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }}
-
-        .status {{
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-        }}
-
-        .status p {{
-            margin: 8px 0;
-            font-size: 0.95em;
-        }}
-
-        .button {{
-            margin-top: 25px;
-            padding: 12px 28px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 500;
-            transition: background 0.3s ease, transform 0.1s ease;
-        }}
-
-        .button:hover {{
-            transform: scale(1.03);
-        }}
-
-        .nav-links {{
-            margin-top: 25px;
-            font-size: 0.95em;
-        }}
-
-        .nav-links a {{
-            margin: 0 10px;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }}
-
-        .footer {{
-            margin-top: 30px;
-            font-size: 0.8em;
-            opacity: 0.6;
-        }}
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <h1>🎫 Coupon Generator</h1>
-        <p class="subtitle">Generate unique coupons and check your AWS RDS MySQL status.</p>
-
-        <div class="coupon-box">
-            <div class="coupon-label">Your Coupon Code:</div>
-            <div class="coupon-code">{coupon}</div>
-        </div>
-
-        <div class="status">
-            <p><strong>Database Status:</strong> {db_status}</p>
-            <p><strong>Message:</strong> {db_message}</p>
-        </div>
-
-        <button class="button" onclick="window.location.reload()">🔄 Generate New Coupon</button>
-
-        <div class="nav-links">
-            <a href="/stats">📊 Stats</a>
-            <a href="/health">❤️ Health</a>
-            <a href="/debug">🐛 Debug</a>
-        </div>
-
-        <div class="footer">© 2025 CouponGen | Flask + AWS RDS</div>
-    </div>
-</body>
-</html>
-"""
-
+        <html>
+        <head>
+            <title>Coupon Generator</title>
+            <style>
+                body {{
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background-color: #f0f4f8;
+                    margin: 0;
+                    padding: 50px;
+                    text-align: center;
+                    color: #333;
+                }}
+                .card {{
+                    background-color: #ffffff;
+                    padding: 30px;
+                    margin: auto;
+                    max-width: 500px;
+                    border-radius: 15px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                }}
+                .coupon-box {{
+                    background-color: #00897B;
+                    color: #ffffff;
+                    padding: 20px;
+                    border-radius: 10px;
+                    margin: 20px 0;
+                }}
+                .coupon-code {{
+                    font-size: 2em;
+                    font-weight: bold;
+                    letter-spacing: 1px;
+                }}
+                .button {{
+                    padding: 12px 25px;
+                    background-color: #007BFF;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 1em;
+                }}
+                .button:hover {{
+                    background-color: #0056b3;
+                }}
+                .nav-links a {{
+                    margin: 0 10px;
+                    color: #007BFF;
+                    text-decoration: none;
+                }}
+                .nav-links a:hover {{
+                    text-decoration: underline;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <h1>🎫 Coupon Generator</h1>
+                <div class="coupon-box">
+                    <h2>Your Coupon:</h2>
+                    <div class="coupon-code">{coupon}</div>
+                </div>
+                <p>Database Status: <strong>{db_status}</strong></p>
+                <p>Message: {db_message}</p>
+                <button class="button" onclick="window.location.reload()">🔄 Generate New Coupon</button>
+                <div class="nav-links" style="margin-top: 20px;">
+                    <a href="/stats">📊 Statistics</a>
+                    <a href="/health">❤️ Health Check</a>
+                    <a href="/debug">🐛 Debug Info</a>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
 
 @app.route('/generate')
 def generate_coupon():
