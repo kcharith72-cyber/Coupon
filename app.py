@@ -433,8 +433,7 @@ def home():
   </script>
 </body>
 </html>
-
-        """
+"""
 
 @app.route('/generate')
 def generate_coupon():
